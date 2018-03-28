@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# This script is used to open each file in the
+#  current working directory with vlc, one by one, 
+#  and then asking the user if the file should be
+#  deleted or kept.
+# If the user decides the file should be deleted,
+#  the script deletes the file.
+
+echo "I will open each file in this ($(pwd)) directory with vlc."
+echo "We will go one file at a time, ech time you close vlc I will ask you if you want to delete or keep the file"
+echo ""
+echo "Lets start"
+echo "(Remember you can stop this script by pressing Ctrl+C at any time in this terminal)"
+
+for file in {,*}; do
+  echo " -Now: $file"
+  vlc "$file" 2>/dev/null
+  read -n1 -p "Delete $file? [y,n]
+  " doit
+  case $doit in
+    y|Y) echo ""
+    rm -v "$file"
+    echo "done";;
+    n|N) echo ""
+    echo "File kept $file" ;;
+    *) echo ""
+    echo "Nothing done" ;;
+  esac ;
+done

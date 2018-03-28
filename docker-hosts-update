@@ -1,0 +1,32 @@
+#!/bin/bash
+
+if [[ ! -z "$1" ]]; then
+  if [[ "$1" = "sudo" ]]; then
+    SUDO="sudo "
+  else
+    echo "Error! Argument 1 unknown: $1"
+    echo "usage: $(basename $0) [sudo]
+sudo: tells the script it should append the sudo command when trying to modify the file in /etc/ and when trying to call docker
+
+This script tries to add entrys for each docker container to the HOST's hosts file"
+    exit 1
+  fi
+fi
+
+hostsfile="/etc/hosts"
+tmpfile=${hostsfile}.tmp
+for service in $(${SUDO}docker ps -q); do
+  servicename=$(${SUDO}docker inspect --format '{{ .Name }}' $service )
+  ipaddress=$(${SUDO}docker inspect --format '{{ .NetworkSettings.IPAddress }}' $service)
+
+  if [ ! -z $ipaddress ] && [ ! -z $servicename ]; then
+    servicename=${servicename:1}
+    {
+      grep -vE "^[0-9.]+[ \t]+$servicename\$" $hostsfile | ${SUDO}tee $tmpfile
+    } > /dev/null
+    {
+      echo -e $ipaddress ' ' $servicename | ${SUDO}tee -a $tmpfile
+    } > /dev/null
+    ${SUDO}mv $tmpfile $hostsfile
+  fi
+done

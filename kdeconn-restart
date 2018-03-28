@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Restart kde-connect and indicator-kdeconnect
+
+echo "Killing..."
+pkill indicator-kdeco
+pkill kdeconnect
+# Time to let the killings end
+sleep 3
+echo "Starting..."
+kdeconnect-cli &
+indicator-kdeconnect &
+# Time to let the initial output of pevious commands fill the terminal
+sleep 1
+echo "Done"

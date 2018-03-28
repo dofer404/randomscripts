@@ -1,0 +1,73 @@
+#!/bin/bash
+
+if [ -z "$ENTORNO_OK" ]; then
+  export ENTORNO_OK=1
+  date +"%Y-%m-%d %k:%M:%S (%a)" 2>&1 | tee -a $HOME/.local/impresora/log.log
+  $0 "$1" "$2" "$3" 2>&1 | tee -a $HOME/.local/impresora/log.log
+  exit ${PIPESTATUS[0]}
+fi
+
+if [ -z "$3" ]; then
+  echo "Falta el argumento 3, ingrese la dirección de red en la forma ###.###.###.###/##, ej: 192.168.0.0/24"
+  exit 4
+fi
+
+NO_HAY_TRABAJOS_DE_IMPRESION=$(lpq | grep -i "no hay entradas")
+if [ -z "$NO_HAY_TRABAJOS_DE_IMPRESION" ]; then
+  HAY_TRABAJOS_DE_IMPRESION="SI"
+else
+  HAY_TRABAJOS_DE_IMPRESION=
+fi
+FORZAR_ACTUALIZACION="$1"
+NETADDR="$3"
+
+if [ ! -z "$HAY_TRABAJOS_DE_IMPRESION$FORZAR_ACTUALIZACION" ]; then
+  if [ ! -z "$HAY_TRABAJOS_DE_IMPRESION" ]; then
+    echo "Se detectaron trabajos de impresión en cola"
+  else
+    echo "Se fuerza la actualización de ip aunque no hay trabajos en cola de impresión"
+  fi
+  IP_CONFIGURADA_OK=$(impresora-ip-configurada-ok)
+  if [ -z "$IP_CONFIGURADA_OK" ]; then
+    IP_CONFIGURADA=$(impresora-ip-configurada)
+    echo "Buscando IP en la red local..."
+    IP_ACTUAL="$(impresora-encontrar-ip "$NETADDR")"
+    if [ ! -z "$IP_CONFIGURADA" ]; then
+      if [ ! -z "$IP_ACTUAL" ]; then
+        if [ ! "$IP_CONFIGURADA" == "$IP_ACTUAL" ]; then
+          if [ ! -z "$2" ]; then
+            COMANDO_SUDO="sudo"
+          fi
+          echo "Seteando la nueva IP..."
+          $COMANDO_SUDO sed -Ei "s/[0-9]+.[0-9]+.[0-9]+.[0-9]+[ \t]+impresora\.local/$IP_ACTUAL impresora.local/" /etc/hosts
+          status=$?
+          if [ $status -ne 0 ]; then
+            echo "Error: Falló el seteo de la IP_ACTUAL '$IP_ACTUAL'. Está usando 'sudo'?" >&2
+            exit 1
+          else
+            echo "Reiniciando el servicio de impresión..."
+            $COMANDO_SUDO service cups restart
+            echo "La IP actual '$IP_ACTUAL' fue seteada."
+            echo "Use impresora-ip-configurada para corroborar"
+            exit 0
+          fi
+        else
+          echo "La IP_CONFIGURADA '$IP_CONFIGURADA' conicide con la IP_ACTUAL encontrada"
+          exit 0
+        fi
+      else
+        echo "La IP_ACTUAL '$IP_ACTUAL' no se pudo determinar. ¿Está encendida y conectada a la red la impresora?"
+        exit 2
+      fi
+    else
+      echo "La IP_CONFIGURADA '$IP_CONFIGURADA' no se pudo determinar"
+      exit 3
+    fi
+  else
+    echo "La IP_CONFIGURADA '$IP_CONFIGURADA_OK' responde correctamente"
+    exit 0
+  fi
+else
+  echo "NO se detectaron trabajos de impresión en cola. No hacemos nada para no generar ruido en la red."
+  exit 0
+fi

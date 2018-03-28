@@ -1,0 +1,19 @@
+#!/bin/bash
+
+DIR_SCRIPTS="$(realpath $(dirname $0))"
+cd ~
+DIR_HOME="$(pwd)"
+DIR_HOME_LOCAL="$DIR_HOME/.local"
+if [ ! -d "$DIR_HOME_LOCAL" ]; then
+	mkdir "$DIR_HOME_LOCAL"
+fi
+DIR_HOME_LOCAL_PRINTERS="$DIR_HOME_LOCAL/impresora"
+if [ ! -d "$DIR_HOME_LOCAL_PRINTERS" ]; then
+	mkdir "$DIR_HOME_LOCAL_PRINTERS"
+fi
+echo "echo '$DIR_HOME_LOCAL_PRINTERS'" > "$DIR_SCRIPTS/impresora-path-logs"
+chmod +x "$DIR_SCRIPTS/impresora-path-logs"
+set -x
+sudo ln -s "$DIR_SCRIPTS/impresora-actualizar-ip-en-hosts" /usr/bin/ && sudo ln -s "$DIR_SCRIPTS/impresora-comprobar-y-actualizar-ip" /usr/bin/ && sudo ln -s "$DIR_SCRIPTS/impresora-encontrar-ip" /usr/bin/ && sudo ln -s "$DIR_SCRIPTS/impresora-ip-configurada" /usr/bin/ && sudo ln -s "$DIR_SCRIPTS/impresora-ip-configurada-ok" /usr/bin/
+sudo ln -s "$DIR_SCRIPTS/impresora-path-logs" /usr/bin/
+set +x

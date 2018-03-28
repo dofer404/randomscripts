@@ -1,0 +1,46 @@
+#!/bin/bash
+
+CONTINUAR="SI"
+ESTADO="-1"
+INF_CONFOK="
+    La configuración de la IP de la impresora fue exitosa"
+while [ ! -z "$CONTINUAR" ]; do
+  if [ ! "$ESTADO" -eq "0" ]; then
+    impresora-actualizar-ip-en-hosts "forzar" "usar-sudo"
+  fi
+  ESTADO=$?
+  echo "El estado es: $ESTADO"
+  if [ ! "$ESTADO" -eq "0" ]; then
+    MENSAJE="
+    Presione r para reintentar
+    Presione cualquier tecla para cerrar: "
+  else
+    MENSAJE="$INF_CONFOK
+    Presione r si desea reiniciar el servicio de impresión
+    Presione cualquier otra tecla para cerrar.
+    "
+    INF_CONFOK=""
+  fi
+  read -n 1 -rs -p "$MENSAJE" RESPUESTA;
+  echo ""
+  if [ "$ESTADO" -eq "0" ]; then
+    if [ "$RESPUESTA" != "r" ] && [ "$RESPUESTA" != "R" ]; then
+      CONTINUAR=
+    else
+      echo ""
+      echo "Reiniciando el servicio de impresión..."
+      sudo service cups restart
+      echo "Listo."
+      echo ""
+      CONTINUAR="SI"
+    fi
+  else
+    if [ "$RESPUESTA" != "r" ] && [ "$RESPUESTA" != "R" ]; then
+      CONTINUAR=
+    else
+      echo ""
+      echo "Presionó [r], intentando nuevamente..."
+      echo ""
+    fi
+  fi
+done

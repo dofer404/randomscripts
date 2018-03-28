@@ -1,0 +1,4 @@
+#!/bin/bash
+
+sudo apt remove --purge cups 2>&1 | tee remove-printer.log
+sudo apt install cups bluez-cups indicator-printers printer-driver-postscript-hp printer-driver-splix hplip printer-driver-gutenprint printer-driver-hpcups 2>&1 | tee reinstall-printer.log

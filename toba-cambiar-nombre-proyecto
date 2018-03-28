@@ -1,0 +1,56 @@
+#!/bin/bash
+
+if [ $1 ]; then
+	if [ $2 ]; then
+		nombreOriginal="$1"
+		nombreFinal="$2"
+		echo "Este script cambiará el nombre del proyecto Toba De>> $nombreOriginal a>> $nombreFinal"
+                echo "Se confía que el proyecto Toba se encuentra en la carpeta actual, no se hace ningún tipo de comprobaciones para verificar que esto sea realmnete así."
+		echo "El proyecto se encuentra en pwd:" $PWD
+		read -p "Si desea continuar presione [Enter], de lo contrario presione [Ctrl + C]..."
+		echo ""
+		echo "Estos son los archivos que contienen '$nombreOriginal...'"
+		echo "...antes de las operaciones:'"
+		grep -i -rn . -e ".*$nombreOriginal.*" --exclude-dir=.svn
+		echo ""
+		echo "Ejecutando operaciones:"
+		echo "Cambiando $nombreOriginal por $nombreFinal en los archivos sh"
+		find . -type f -iname "*.sh" -print0 | xargs -0 sed -i "s/$nombreOriginal/$nombreFinal/g"
+		echo "Cambiando $nombreOriginal por $nombreFinal en los archivos ini"
+		find . -type f -iname "*.ini" -print0 | xargs -0 sed -i "s/$nombreOriginal/$nombreFinal/g"
+		echo "Cambiando $nombreOriginal por $nombreFinal en los archivos php"
+		find . -type f -iname "*.php" -print0 | xargs -0 sed -i "s/$nombreOriginal/$nombreFinal/g"
+		echo "Cambiando $nombreOriginal por $nombreFinal en los archivos sql"
+		find . -type f -iname "*.sql" -print0 | xargs -0 sed -i "s/$nombreOriginal/$nombreFinal/g"
+		find . -type f -iname "*.sql" -print0 | xargs -0 sed -i "s/$nombreOriginal/$nombreFinal/g"
+		find . -type f -iname "*.sql" -print0 | xargs -0 sed -i "s/$nombreOriginal/$nombreFinal/g"
+		echo " - Fin de operaciones."
+		echo ""
+		echo "...despues de las operaciones:'"
+		grep -i -rn . -e ".*$nombreOriginal.*" --exclude-dir=.svn
+		echo ""
+		echo "! ATENCIÓN: Renombrar los archivos que contengan $nombreOriginal>>"
+		echo "            Ejecutar el siguiente comando antas veces como fueran necesarias para"
+		echo "             renombrar todos los archivos y directorios. (normalmente con dos "
+		echo "             ejecuciones es suficiente):"
+		echo find . -iname "\"*$nombreOriginal*\"" -exec rename -v "'s/$nombreOriginal/$nombreFinal/g'" {} \\\;
+		echo ""
+		echo " - Fin!"
+		echo ""
+                exit 0
+	else
+		echo "Falta el segundo argumento"
+		echo "uso: $(basename $0) arg1 arg2"
+		echo "   > arg1: nombre del proyecto que se quiere cambiar"
+		echo "   > arg2: nuevo nombre del proyecto"
+		echo ""
+                exit 2
+	fi
+else
+  echo "Falta el primer argumento"
+  echo "uso: $(basename $0) arg1 arg2"
+  echo "   > arg1: nombre del proyecto que se quiere cambiar"
+  echo "   > arg2: nuevo nombre del proyecto"
+  echo ""
+  exit 1
+fi

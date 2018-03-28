@@ -1,0 +1,5 @@
+#!/bin/bash
+
+netaddr="$1"
+set -x
+nmap "$netaddr" -p 9100 | sed -zE 's/Nmap scan report for ([^\n]*)[^\/]*\/tcp open/>>>>>>\1<<<<<</g' | grep -Eo '>[^<>)]+' | grep -Eo '[0-9].+'

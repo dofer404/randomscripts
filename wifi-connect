@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# This script tries to connect you to the wifi spot "$1" with password "$2"
+# This script does something wrong as it generates a lot of new wifi configurations as it is used to connect several times to the same wifi BSSID
+
+if [[ ! "$1" = "" ]]; then
+if [[ ! "$2" = "" ]]; then
+  echo "Trying to connect to BSSID '$1' with password '$2'"
+  set -x
+  nmcli connection up "$1" || nmcli d wifi connect "$1" password "$2"
+  set +x
+  echo ""
+  exit 0
+else
+  echo "No password provided, please provide a password in the second argument"
+fi
+else
+  echo "No BSSID provided, please provide a BSSID in the first argument"
+fi
+
+echo "
+USAGE: $> $(basename $0) BSSID PASSWORD
+  BSSID: name of the wifi spot to connect to
+  PASSWORD: passowrd to use to connect to the wifi spot"
+exit 1

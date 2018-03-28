@@ -1,0 +1,8 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Name=Impresora (IP-Actualizar)
+Comment=Comprueba y si es necesario busca en la red la IP de la impresora y actualiza su configuración. Tags:Impresora Printer Impresoras Configurar Actualizar Encontrar Buscar IP co conf config configu configur configura
+Exec=impresora-comprobar-y-actualizar-ip
+Terminal=true
+Type=Application
+Icon=/path/to/printer-settings.png

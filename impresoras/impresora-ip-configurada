@@ -1,0 +1,3 @@
+#!/bin/bash
+
+grep '.*impresora.local' /etc/hosts | grep -Eo '[0-9]+.[0-9]+.[0-9]+.[0-9]+'

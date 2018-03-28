@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# This script shows a message using notify-send
+# If the first argument is present, we add it to the message.
+# 
+# I would normaly use this script to signal the end of a command. Example: $> command; ringalert
+
+msg="Finished task in $(pwd)"
+if [[ ! "$1" = "" ]]; then
+  msg="$msg; Arg1: $1"
+fi
+
+/usr/bin/notify-send "$msg"

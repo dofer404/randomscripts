@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# List the saved network configurations
+
+nmcli -f NAME,UUID,AUTOCONNECT,AUTOCONNECT-PRIORITY c
