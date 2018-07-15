@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# non-utf8 for the command tr
+export LC_CTYPE=C
+
+# generate the random characters
+< /dev/urandom tr -dc "A-Za-z0-9\-\\/+,._" | head -c32
+echo ""

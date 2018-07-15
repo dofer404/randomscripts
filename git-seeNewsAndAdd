@@ -1,0 +1,21 @@
+#!/bin/bash
+
+if [ -z "$TEXTEDITOR" ]; then
+  TEXTEDITOR="code"
+fi
+
+for file in $(git status --short | grep -Po "(?<=\?\? ).+")
+do
+	$TEXTEDITOR $file
+	read -p "Do you wish to git-add '$file' ? (Y/n): "
+	answer="$REPLY"
+	if [ ! "$answer" = "n" ]; then
+		git add $file
+		echo "agregado: $file"
+	else
+		echo "salteamos: $file"
+	fi
+done
+echo "
+== git status =="
+git status

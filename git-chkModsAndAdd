@@ -1,0 +1,17 @@
+#!/bin/bash
+
+for archivo in $(git status --short | grep -Po "(?<= M ).+")
+do
+	git difftool $archivo
+	read -p "Do you wish to git-add '$archivo' ? (Y/n): "
+	respuesta="$REPLY"
+	if [ ! "$respuesta" = "n" ]; then
+		git add $archivo
+		echo "added: $archivo"
+	else
+		echo "skip: $archivo"
+	fi
+done
+echo "
+== git status =="
+git status

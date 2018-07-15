@@ -1,0 +1,57 @@
+#!/bin/bash
+
+if [ $1 ]; then
+	POSITIVO="SI"
+	NEGATIVO="NO"
+	HELP="$NEGATIVO"
+	PARAYUDA="-h -help --help -ayuda --ayuda"
+	for PAR in $PARAYUDA
+	do
+		if [[ "$1" == "$PAR" ]]; then
+			HELP="$POSITIVO"
+		fi
+	done
+	if [[ "$HELP" == "$POSITIVO" ]]; then
+		echo "Agrega archivos a git para commitear, pero antes comprueba que su codificación sea correcta para Toba."
+		echo ""
+		echo "SINTÁXIS: $(basename $0) [PATH [atom]]"
+		echo ""
+		echo "PATH [atom]:"
+		echo "  Path que se quiere agregar a git para commitear; Tal como en git add [PATH]"
+		echo "  Si se pasa el parámetro opcional 'atom', al finalizar el script se llamará a atom con todos los archivos que fallaron el chequeo de codificación."
+		exit 0
+	fi
+	ESPECIFICO=$1
+else
+	ESPECIFICO=
+fi
+if [[ "$2" == "atom" ]]; then
+	ATOM=atom
+else
+	ATOM=
+fi
+ARCHIVOS=$(git status $ESPECIFICO | grep -Po "(?<=modificado:    ).+")
+for archivo in $ARCHIVOS
+do
+	LANG=en_US.ISO85591
+	if grep -inarq "[��ó�]" $archivo; then
+		echo "Prueba"
+		grep -inarq "[��ó�]" $archivo | tee /dev/null
+		echo "fin prueba"
+		LANG=en_US.UTF-8
+		echo "! check fail: $archivo"
+		if [[ "$2" == "atom" ]]; then
+			ATOM_FILES="$ATOM_FILES $archivo"
+		fi
+	else
+		git add $archivo
+	fi
+done
+if [[ "$2" == "atom" ]]; then
+	if [[ ! "$ATOM_FILES" == "" ]]; then
+		echo "Iniciando atom"
+		set -x
+		atom $ATOM_FILES
+		set +x
+	fi
+fi
