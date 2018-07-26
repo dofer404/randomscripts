@@ -1,0 +1,17 @@
+#!/bin/bash
+
+if [ -z "$MILISEGUNDO" ]; then
+  export MILISEGUNDO=$(date +"%Y%d%m-%H%M%S-%N")
+  $0 2>&1 | tee build_logs/autogen-$MILISEGUNDO.log
+  exit
+fi
+
+cd lo_source
+echo ""
+echo "Inicio de: autogen.sh"
+echo ""
+./autogen.sh
+echo ""
+echo "Inicio de: make clean"
+echo ""
+make clean

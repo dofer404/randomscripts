@@ -1,0 +1,19 @@
+#!/bin/bash
+
+dname="$(dirname $0)"
+
+if [ -z "$MILISEGUNDO" ]; then
+  export MILISEGUNDO=$(date +"%Y%m%d-%H%M%S-%N")
+  $0 "$1"
+  #2>&1 | tee "$dname/build_logs/build-$MILISEGUNDO.log"
+  exit
+fi
+
+cd "$dname/lo_source"
+echo ""
+echo "$MILISEGUNDO"
+echo ""
+echo "Intentando iniciar libreoffice"
+pwd
+set -x
+./instdir/program/soffice

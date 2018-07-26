@@ -1,0 +1,18 @@
+--
+20160305: Para resolver:
+        checking for DBUS... no
+        configure: error: Package requirements (dbus-glib-1 >= 0.70) were not met:
+
+        No package 'dbus-glib-1' found
+
+        Consider adjusting the PKG_CONFIG_PATH environment variable if you
+        installed software in a non-standard prefix.
+
+        Alternatively, you may set the environment variables DBUS_CFLAGS
+        and DBUS_LIBS to avoid the need to call pkg-config.
+        See the pkg-config man page for more details.
+        Error running configure at ./autogen.sh line 281.
+- 
+ Instalé: libdbus-glib-1-dev
+--
+

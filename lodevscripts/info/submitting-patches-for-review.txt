@@ -1,0 +1,9 @@
+[-] Submitting patches for review - https://wiki.documentfoundation.org/Development/gerrit#Submitting_patches_for_review
+  [-] git checkout -b <a_local_branch_name_of_your_choice>
+  [-] <Do your code changes, make sure it will build>
+  [-] git add file [file ...] # all the new files _and_ changed files
+  [-] git commit
+    [-] the commit subject line should not be longer than >> 65 << characters
+  [-] ./logerrit submit master
+[-] git checkout master
+      >>> Para volver a master y tal vez comenzar el proceso desde Submitting patches for review

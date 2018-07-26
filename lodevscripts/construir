@@ -1,0 +1,49 @@
+#!/bin/bash
+
+dname="$(dirname $0)"
+
+if [ -z "$MILISEGUNDO" ]; then
+  export MILISEGUNDO=$(date +"%Y%m%d-%H%M%S-%N")
+  $0 "$1" 2>&1 | tee "$dname/build_logs/build-$MILISEGUNDO.log"
+  exit
+fi
+
+cd "$dname/lo_source"
+echo ""
+echo "$MILISEGUNDO"
+echo ""
+echo "Inicio de construir"
+echo "Inicio de autogen.sh"
+echo ""
+
+if [ "$1" == "--pre-split-debug" ]; then
+  oldbuild="yes"
+else if [ "$1" == "--old-build" ]; then
+    oldbuild="yes"
+  fi
+fi
+
+if [ "$oldbuild" == "yes" ]; then
+  echo "arg 1: $1"
+  echo "Without split-debug (it's an old build)"
+  splidebugoptions=
+else
+  echo "With split-debug"
+  splidebugoptions="--enable-split-debug --enable-gdb-index --enable-ld=gold"
+fi
+set -x
+./autogen.sh --with-parallelism=7 --enable-dbgutil $splidebugoptions
+set +x
+echo ""
+echo "Inicio de make"
+echo ""
+set -x
+export CCACHE_COMPRESS=1
+make build-nocheck
+set +x
+echo ""
+echo "Fin de construir"
+echo ""
+MILISEGUNDO2=$(date +"%Y%m%d-%H%M%S-%N")
+echo "$MILISEGUNDO"
+echo "$MILISEGUNDO2"
