@@ -1,10 +1,24 @@
 #!/bin/bash
 
+arg_oldbuild_v1="--pre-split-debug"
+arg_oldbuild_v2="--old-build"
+arg_modulename="modulename"
+
+function sintaxis {
+  msg="Sintax
+$0 [ $arg_oldbuild_v1 | $arg_oldbuild_v2 ] [$arg_modulename]"
+  if [ "NOERROR" == "$noerror" ]; then
+    echo "$msg"
+  else
+    >&2 echo "$msg"
+  fi
+}
+
 dname="$(dirname $0)"
 
 if [ -z "$MILISEGUNDO" ]; then
   export MILISEGUNDO=$(date +"%Y%m%d-%H%M%S-%N")
-  $0 "$1" 2>&1 | tee "$dname/build_logs/build-$MILISEGUNDO.log"
+  $0 "$1" "$2" 2>&1 | tee "$dname/build_logs/build-$MILISEGUNDO.log"
   exit
 fi
 
@@ -16,11 +30,21 @@ echo "Inicio de construir"
 echo "Inicio de autogen.sh"
 echo ""
 
-if [ "$1" == "--pre-split-debug" ]; then
+if [ "$1" == $arg_oldbuild_v1 ]; then
   oldbuild="yes"
-else if [ "$1" == "--old-build" ]; then
-    oldbuild="yes"
-  fi
+else if [ "$1" == $arg_oldbuild_v2 ]; then
+  oldbuild="yes"
+else if [ ! -z "$1" ]; then
+  >&2 echo "No se reconoce el argumento 1"
+  >&2 echo ""
+  sintaxis
+  exit 1
+fi; fi; fi
+
+if [ -z "$2" ]; then
+  buildargs="build-nocheck"
+else
+  buildargs="$2"
 fi
 
 if [ "$oldbuild" == "yes" ]; then
@@ -32,14 +56,14 @@ else
   splidebugoptions="--enable-split-debug --enable-gdb-index --enable-ld=gold"
 fi
 set -x
-./autogen.sh --with-parallelism=7 --enable-dbgutil $splidebugoptions
+./autogen.sh --with-parallelism=3 --enable-dbgutil $splidebugoptions
 set +x
 echo ""
 echo "Inicio de make"
 echo ""
 set -x
 export CCACHE_COMPRESS=1
-make build-nocheck
+make "$buildargs"
 set +x
 echo ""
 echo "Fin de construir"
