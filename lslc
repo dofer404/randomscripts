@@ -1,1 +1,1 @@
-clear; clear; pwd; ls -la;
+clear; clear; pwd; ls -la --color;
