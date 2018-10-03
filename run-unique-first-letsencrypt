@@ -1,0 +1,101 @@
+#!/bin/bash
+
+BASE_DIR="./uf_letsencrypt"
+
+
+# This is me testing this script on sometest.example.com
+# DOMAIN_NAME1="sometest.example.com"
+
+# Notes for use of DOMAIN_NAME1 and DOMAIN_NAME2
+#DOAIN_NAME1="rootdomain.com"
+#DOAIN_NAME2="www.rootdomain.com"
+
+mkdir -p "$BASE_DIR/letsencrypt-site"
+
+echo "version: '3.1'
+
+services:
+
+  uf_letsencrypt-nginx-container:
+    container_name: 'uf_letsencrypt-nginx-container'
+    image: nginx:latest
+    ports:
+      - '80:80'
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./letsencrypt-site:/usr/share/nginx/html
+#    networks:
+#      - docker-network
+#
+#networks:
+#  docker-network:
+#    driver: bridge
+" > "$BASE_DIR/docker-compose.yml"
+
+# nginx with domain 2 names
+echo "server {
+    listen 80;
+    listen [::]:80;
+    server_name $DOMAIN_NAME1 $DOMAIN_NAME2;
+
+    location ~ /.well-known/acme-challenge {
+        allow all;
+        root /usr/share/nginx/html;
+    }
+
+    root /usr/share/nginx/html;
+    index index.html;
+}
+" > "$BASE_DIR/nginx.conf"
+
+# a temporary index page
+echo "<!DOCTYPE html>
+<html>
+<head>
+    <meta charset=\"utf-8\" />
+    <title>Let's Encrypt First Time Cert Issue Site</title>
+</head>
+<body>
+    <h1>Oh, hai there!</h1>
+    <p>
+        This is the temporary site that will only be used for the very first time SSL certificates are issued by Let's Encrypt's
+        certbot.
+    </p>
+</body>
+</html>" > "$BASE_DIR/letsencrypt-site/index.html"
+
+cd $BASE_DIR
+sudo docker-compose up -d
+
+if [ "$1" == "production" ]; then
+    echo "You asked for production, but we are no ready for production so I just let you know what we would do if production where ready
+
+    sudo docker run -it --rm \
+    -v \"$(realpath .)/volumes/etc/letsencrypt\":/etc/letsencrypt \
+    -v \"$(realpath .)/volumes/var/lib/letsencrypt\":/var/lib/letsencrypt \
+    -v \"$(realpath .)/volumes/var/log/letsencrypt\":/var/log/letsencrypt \
+    -v \"$(realpath .)/letsencrypt-site\":/data/letsencrypt \
+    certbot/certbot \
+    certonly --webroot \
+    --email youremail@domain.com --agree-tos --no-eff-email \
+    --webroot-path=/data/letsencrypt \
+    -d $DOMAIN_NAME1
+    #-d $DOMAIN_NAME1 -d $DOMAIN_NAME2
+    That's would be it
+    "
+else
+    echo "Ejecutando prueba con letsencrypt"
+    echo ""
+    sudo docker run -it --rm \
+    -v "$(realpath .)/volumes/etc/letsencrypt":/etc/letsencrypt \
+    -v "$(realpath .)/volumes/var/lib/letsencrypt":/var/lib/letsencrypt \
+    -v "$(realpath .)/volumes/var/log/letsencrypt":/var/log/letsencrypt \
+    -v "$(realpath .)/letsencrypt-site":/data/letsencrypt \
+    certbot/certbot \
+    certonly --webroot \
+    --register-unsafely-without-email --agree-tos \
+    --webroot-path=/data/letsencrypt \
+    --staging \
+    -d $DOMAIN_NAME1
+    #-d $DOMAIN_NAME1 -d $DOMAIN_NAME2
+fi

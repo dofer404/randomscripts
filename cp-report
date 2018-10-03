@@ -1,0 +1,24 @@
+if [ ! -z $1 ]; then
+  fileFrom="$1"
+ else
+  fileFrom="/some/path/to/a/file"
+fi
+if [ ! -z $2 ]; then
+  fileTo="$2"
+ else
+  fileTo="/some/other/path/to/a/file"
+fi
+if [ ! -z $3 ]; then
+  steps="$3"
+ else
+  steps=10
+fi
+
+echo "Never-ending report running. One report every $steps seconds. Press Ctrl+C to stop."
+while :
+do
+  T1=$(ls -la "$fileTo" | grep -Eio "[rwxgd-]{10} [^ ]+ [^ ]+ [^ ]+ [^ ]+" | grep -Eio "[0-9]+$")
+  T2=$(ls -la "$fileFrom" | grep -Eio "[rwxgd-]{10} [^ ]+ [^ ]+ [^ ]+ [^ ]+" | grep -Eio "[0-9]+$")
+  echo $T1/$T2 "($(( $T1 * 100 / $T2 ))%)"
+  sleep $steps
+done
