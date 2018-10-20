@@ -9,11 +9,11 @@ fi
 gateway="127.0.0.1"
 
 alerta_hayconexion () {
-  /usr/bin/notify-send --urgency=low -i "info" "Hay conexión $(date +"%m-%d %H:%M")"
+  notify-send --urgency=low -i "info" "Hay conexión $(date +"%m-%d %H:%M")"
 }
 
 alerta_nohayconexion () {
-  /usr/bin/notify-send --urgency=low -i "error" "No hay conexión $(date +"%m-%d %H:%M")"
+  notify-send --urgency=low -i "error" "No hay conexión $(date +"%m-%d %H:%M")"
 }
 
 eval "export $(egrep -z DBUS_SESSION_BUS_ADDRESS /proc/$(pgrep -u $LOGNAME gnome-session)/environ)";
