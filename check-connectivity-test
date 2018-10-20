@@ -1,0 +1,43 @@
+#!/bin/bash
+
+if [ -z "$ENTORNOFPIR" ]; then
+  export ENTORNOFPIR=$(date +"%Y%m%d-%H%M%S-%N")
+  $0 2>&1 1>>~/.wifi-test.log
+  exit $?
+fi
+
+gateway="127.0.0.1"
+
+alerta_hayconexion () {
+  /usr/bin/notify-send --urgency=low -i "info" "Hay conexión $(date +"%m-%d %H:%M")"
+}
+
+alerta_nohayconexion () {
+  /usr/bin/notify-send --urgency=low -i "error" "No hay conexión $(date +"%m-%d %H:%M")"
+}
+
+eval "export $(egrep -z DBUS_SESSION_BUS_ADDRESS /proc/$(pgrep -u $LOGNAME gnome-session)/environ)";
+
+echo "Ini $ENTORNOFPIR"
+resultado=$({ ping -c 1 $gateway | grep -o "[0-9.,]*%"; } || echo 100%)
+if [[ "0%" = "$resultado" ]]; then
+  echo " Hay conexion $(date +"%Y%m%d-%H%M%S-%N")"
+  alerta_hayconexion
+else
+  echo " No hay conección (test 1) $(date +"%Y%m%d-%H%M%S-%N")"
+  echo "  waiting 10 seconds for a new test $(date +"%Y%m%d-%H%M%S-%N")"
+  sleep 15
+  resultado=$({ ping -c 1 $gateway | grep -o "[0-9.,]*%"; } || echo 100%)
+  if [[ "0%" = "$resultado" ]]; then
+    echo "  Hay conexion $(date +"%Y%m%d-%H%M%S-%N")"
+    alerta_hayconexion
+  else
+    echo "  No hay conexion $(date +"%Y%m%d-%H%M%S-%N")"
+    set -x
+    #wifi off
+    #sleep 5
+    #wifi on
+    echo "  No se intenta recuperar $(date +"%Y%m%d-%H%M%S-%N")"
+    alerta_nohayconexion
+  fi
+fi
