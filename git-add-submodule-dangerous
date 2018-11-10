@@ -1,0 +1,21 @@
+if [[ ! -d $1 ]]; then
+  echo "Error: argument1 ($1) is no a directory" >&2
+  exit 1
+fi
+if [[ ! -d "$1/.git" ]]; then
+  echo "Error: argument1 ($1) does not seem to be a cloned git repository" >&2
+  exit 2
+fi
+
+repoPath="$1"; 
+repoUrl=$(cd "$repoPath"; git remote -v | grep fetch | grep -oE "http[^ ]*"); 
+
+if [[ $repoUrl = "" ]]; then
+  echo "Error: argument1 ($1) does not seem have a fetch url for origin" >&2
+  exit 2
+fi
+
+git rm -f --cached $repoPath; 
+git submodule add "$repoUrl" "$repoPath";
+
+
