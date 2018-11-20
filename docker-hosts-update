@@ -11,13 +11,18 @@ sudo: tells the script it should append the sudo command when trying to modify t
 This script tries to add entrys for each docker container to the HOST's hosts file"
     exit 1
   fi
+  else
+    echo "arg1 empty - sudo not used"
 fi
 
 hostsfile="/etc/hosts"
 tmpfile=${hostsfile}.tmp
 for service in $(${SUDO}docker ps -q); do
   servicename=$(${SUDO}docker inspect --format '{{ .Name }}' $service )
-  ipaddress=$(${SUDO}docker inspect --format '{{ .NetworkSettings.IPAddress }}' $service)
+  # Alternative method
+  #ipaddress=$(${SUDO}docker inspect $service | grep -Eo "IPAddress.*[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\"" | grep -Eo "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+")
+  ipaddress=$(${SUDO}docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $service)
+  echo "Service name $servicename - Ip address $ipaddress"
 
   if [ ! -z $ipaddress ] && [ ! -z $servicename ]; then
     servicename=${servicename:1}
