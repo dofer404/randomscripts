@@ -1,6 +1,7 @@
 #!/bin/bash
 
-for archivo in $(git status --short | grep -Po "(?<= M ).+")
+
+for archivo in $(git status --short | grep -Po "(?<= M ).+";git status --short | grep -Po "(?<=MM ).+";git status --short | grep -Po "(?<=AM ).+")
 do
 	git difftool $archivo
 	read -p "Do you wish to git-add '$archivo' ? (Y/n): "

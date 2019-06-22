@@ -1,0 +1,1 @@
+nmcli dev wifi hotspot ifname wlan0 ssid nombreDeLaRed password "claveDeLaRed"
